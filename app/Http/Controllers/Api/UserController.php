@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\UserResource;
+use App\Http\Resources\UserWithCarsResource;
 use App\Models\User;
 use Illuminate\Http\Request;
 
@@ -11,13 +13,17 @@ class UserController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
      */
     public function index()
     {
         //
-        $users = User::with('cars')->get();
-        return response($users);
+//        $users = User::with('cars')->get();
+//        return response($users);
+
+
+        $data=User::with('cars')->paginate(5);
+        return UserWithCarsResource::collection($data);
     }
 
     /**
@@ -35,34 +41,53 @@ class UserController extends Controller
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @return UserResource
      */
     public function store(Request $request)
     {
         //
-        $user = new User;
-        $user->name = $request->name;
-        $user->surname = $request->surname;
-        $user->apartment_no = $request->apartment_no;
-        $user->save();
+//        User::create($request->all());
 
-        return response([
-            'data'=> $user,
-            'message'=>'User Created'
-        ]);
+//        $user = new User;
+//        $user->name = $request->name;
+//        $user->surname = $request->surname;
+//        $user->apartment_no = $request->apartment_no;
+//        $user->save();
+
+//        return response([
+//            'data'=> $user,
+//            'message'=>'User Created'
+//        ]);
+        $userFind=User::where('apartment_no',$request->apartment_no)->first();
+        if ($userFind){
+
+            return UserResource::make($userFind);
+        }
+        else{
+
+            $resource = User::create($request->all());
+            return UserResource::make($resource);
+        }
     }
 
     /**
      * Display the specified resource.
      *
      * @param  \App\Models\User  $user
-     * @return \Illuminate\Http\Response
+     * @return UserResource
      */
-    public function show(User $user)
+    public function show($id)
     {
-        //
-        $users = User::with('car')->get('user_id');
-        return response($users);
+        //            return \response($users, 200);
+//        $users = User::find($id);
+//        if ($users) {
+//            return UserResource::make($users);
+//        } else
+//            $error = 'User Not Found';
+//            return UserResource::make($error);
+
+      return new UserResource(User::findOrFail($id));
+
     }
 
     /**
@@ -81,34 +106,31 @@ class UserController extends Controller
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  \App\Models\User  $user
-     * @return \Illuminate\Http\Response
+     * @return UserResource
      */
     public function update(Request $request, User $user)
     {
 //      $input = $request->all();
 //      $user->update($input);
 
-      $user->name = $request->name;
-      $user->surname = $request->surname;
-      $user->apartment_no = $request->apartment_no;
-      $user->save();
+        $user->name = $request->name;
+        $user->surname = $request->surname;
+        $user->apartment_no = $request->apartment_no;
+        $user->save();
 
-      return response([
-          'data'=> $user,
-          'message'=>'User Updated'
-      ]);
+        return UserResource::make($user);
     }
 
     /**
      * Remove the specified resource from storage.
      *
      * @param  \App\Models\User  $user
-     * @return \Illuminate\Http\Response
+     * @return UserResource
      */
     public function destroy(User $user)
     {
-        //
+
         $user->delete();
-        return response('Kullanıcı Silindi');
+        return UserResource::make($user);
     }
 }

@@ -18,17 +18,38 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
-Route::apiResources([
-    'users'=>'App\Http\Controllers\Api\UserController',
-    'cars'=>'App\Http\Controllers\Api\CarController',
+//Route::apiResources([
+//    'users'=>'App\Http\Controllers\Api\UserController',
+//    'cars'=>'App\Http\Controllers\Api\CarController',
     //'cars2'=>'App\Http\Resources\CarResource'
-]);
+//]);
+
+//Route::apiResource('/users','\App\Http\Controllers\Api\UserController');
+
+
+//Route::apiResource('/cars', '\App\Http\Controllers\Api\CarController');
+//Route::apiResource('/cars', \App\Http\Controllers\Api\CarController::class);
+
+//Route::get('/cars/{user_id}', function ($user_id) {
+//    return "Product Id: $id, Type: $r_type";
+//});
+//Route::get('/cars/{user_id}', [\App\Http\Controllers\Api\CarController::class, "getCarById"]);
+
+
+Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+    return $request->user();
+});
+//Route::apiResources([
+//    'users'=>'App\Http\Controllers\Api\UserController',
+//    'cars'=>'App\Http\Controllers\Api\CarController',
+//    'cars2'=>'App\Http\Resources\CarResource'
+//]);
 
 Route::apiResource('/users','\App\Http\Controllers\Api\UserController');
 
 
 Route::apiResource('/cars', '\App\Http\Controllers\Api\CarController');
 
-Route::get('/cars/{user_id}', function ($user_id) {
-    return "Product Id: $id, Type: $r_type";
-});
+//Route::get('/cars/{user_id}', function ($user_id) {
+//    return "Product Id: $id, Type: $r_type";
+//});

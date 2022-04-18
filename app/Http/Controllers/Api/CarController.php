@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\CarResource;
+use App\Http\Resources\UserResource;
 use App\Models\Car;
 use http\Env\Response;
 use Illuminate\Foundation\Auth\User;
@@ -13,53 +15,48 @@ class CarController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
      */
     public function index(Request $request)
     {
         //
 //        $cars = Car::all();
 //        return response()->json($cars);
-        $searchQuerey = $request->query('user_id');
-
-        $posts = Car::query()->where('user_id', 'LIKE', $searchQuerey)->take(10)->get();
-        return response()->json($posts);
+//        $searchQuerey = $request->query('user_id');
+//
+//        $posts = Car::query()->where('user_id', 'LIKE', $searchQuerey)->take(10)->get();
+//        return response()->json($posts);
+        return  CarResource::collection(Car::all());
     }
 
     /**
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @return CarResource
      */
     public function store(Request $request)
     {
-        //
-
 
         $carcount=Car::where('user_id', $request->get('user_id'))->count();
 
-        if ($carcount >= 3){
-            return response('Maksimum arac sayısına sahipsiniz.');
+        if ($carcount < 3){
+            $car = Car::create($request->all());
+            return CarResource::make($car);
         }
-
-        echo 'Arac sayısı = '.$carcount;
-        Car::create([
-            "plaque_number" => $request->get('plaque_number'),
-            "user_id" => $request->get('user_id')
-        ]);
-        return response(['message'=>'Yeni arac eklenmistir.']);
+//            $usersCar = Car::find($request->user_id);
     }
 
     /**
      * Display the specified resource.
      *
      * @param  \App\Models\Car  $car
-     * @return \Illuminate\Http\Response
+     * @return CarResource
      */
-    public function show(Request $request)
+    public function show($id)
     {
-        //
+//        $cars = Car::find($id);
+       return new CarResource(Car::findOrFail($id));
 
     }
 
@@ -68,7 +65,7 @@ class CarController extends Controller
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  \App\Models\Car  $car
-     * @return \Illuminate\Http\Response
+     * @return CarResource
      */
     public function update(Request $request, Car $car)
     {
@@ -77,22 +74,19 @@ class CarController extends Controller
         $car->user_id = $request->user_id;
         $car->save();
 
-        return response([
-            'data'=> $car,
-            'message'=>'Car Updated'
-        ]);
+        return CarResource::make($car);
     }
 
     /**
      * Remove the specified resource from storage.
      *
      * @param  \App\Models\Car  $car
-     * @return \Illuminate\Http\Response
+     * @return CarResource
      */
     public function destroy(Car $car)
     {
         //
-        $car->delete();
-        return response('Arac Silindi');
+       $car->delete();
+       return CarResource::make($car);
     }
 }
